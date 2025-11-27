@@ -1,0 +1,23 @@
+{
+  "name": "My Playlist",
+  "songs": [
+    {
+      "id": "1",
+      "title": "Sample Track 1",
+      "artist": "Sample Artist",
+      "album": "Sample Album",
+      "duration": 180,
+      "url": "/audio/sample1.mp3",
+      "coverArt": "/covers/sample1.jpg"
+    },
+    {
+      "id": "2",
+      "title": "Sample Track 2",
+      "artist": "Sample Artist",
+      "album": "Sample Album",
+      "duration": 210,
+      "url": "/audio/sample2.mp3",
+      "coverArt": "/covers/sample2.jpg"
+    }
+  ]
+}

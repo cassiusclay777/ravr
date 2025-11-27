@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">RAVR Audio Engine</string>
+    <string name="title_activity_main">RAVR Audio Engine</string>
+    <string name="package_name">com.ravr.audioplayer</string>
+    <string name="custom_url_scheme">com.ravr.audioplayer</string>
+    <string name="widget_description">RAVR Audio Player - Quick playback controls</string>
+</resources>

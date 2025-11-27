@@ -1,0 +1,329 @@
+/* Audio Preview Styles - Adapted from vscode-audio-preview */
+
+/* Main container */
+.audio-preview-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1rem;
+  background: var(--vscode-editor-background, #1e1e1e);
+  color: var(--vscode-editor-foreground, #d4d4d4);
+  font-family: var(--vscode-font-family, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif);
+  border-radius: 8px;
+  border: 1px solid var(--vscode-panel-border, #3c3c3c);
+}
+
+/* Waveform container */
+.waveform-container {
+  position: relative;
+  width: 100%;
+  height: 200px;
+  background: var(--vscode-editor-background, #1e1e1e);
+  border: 1px solid var(--vscode-panel-border, #3c3c3c);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.axis-canvas,
+.main-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* Player controls */
+.audio-preview-player {
+  background: var(--vscode-panel-background, #252526);
+  border: 1px solid var(--vscode-panel-border, #3c3c3c);
+  border-radius: 4px;
+  padding: 1rem;
+}
+
+.player-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.play-button {
+  background: var(--vscode-button-background, #0e639c);
+  color: var(--vscode-button-foreground, #ffffff);
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+  align-self: flex-start;
+}
+
+.play-button:hover {
+  background: var(--vscode-button-hoverBackground, #1177bb);
+}
+
+.play-button:disabled {
+  background: var(--vscode-button-secondaryBackground, #3c3c3c);
+  color: var(--vscode-button-secondaryForeground, #cccccc);
+  cursor: not-allowed;
+}
+
+/* Volume control */
+.volume-control {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.volume-text {
+  font-size: 12px;
+  color: var(--vscode-descriptionForeground, #cccccc);
+}
+
+.volume-bar {
+  width: 200px;
+  height: 4px;
+  background: var(--vscode-scrollbarSlider-background, #3c3c3c);
+  border-radius: 2px;
+  outline: none;
+  cursor: pointer;
+}
+
+.volume-bar::-webkit-slider-thumb {
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  background: var(--vscode-button-background, #0e639c);
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.volume-bar::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  background: var(--vscode-button-background, #0e639c);
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+}
+
+/* Seek control */
+.seek-control {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.seek-position-text {
+  font-size: 12px;
+  color: var(--vscode-descriptionForeground, #cccccc);
+  font-family: monospace;
+}
+
+.seek-bar-container {
+  position: relative;
+  width: 100%;
+}
+
+.seek-bar {
+  width: 100%;
+  height: 6px;
+  background: var(--vscode-scrollbarSlider-background, #3c3c3c);
+  border-radius: 3px;
+  outline: none;
+  cursor: pointer;
+}
+
+.seek-bar::-webkit-slider-thumb {
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  background: var(--vscode-button-background, #0e639c);
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.seek-bar::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  background: var(--vscode-button-background, #0e639c);
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Settings control */
+.settings-control {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 12px;
+}
+
+.settings-control input[type="checkbox"] {
+  margin: 0;
+}
+
+/* Audio info */
+.audio-info {
+  background: var(--vscode-panel-background, #252526);
+  border: 1px solid var(--vscode-panel-border, #3c3c3c);
+  border-radius: 4px;
+  padding: 1rem;
+}
+
+.audio-info-header h3 {
+  margin: 0 0 1rem 0;
+  color: var(--vscode-editor-foreground, #d4d4d4);
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.audio-info-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.info-section h4 {
+  margin: 0 0 0.75rem 0;
+  color: var(--vscode-editor-foreground, #d4d4d4);
+  font-size: 14px;
+  font-weight: 500;
+  border-bottom: 1px solid var(--vscode-panel-border, #3c3c3c);
+  padding-bottom: 0.25rem;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 0.5rem;
+}
+
+.info-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.25rem 0;
+  font-size: 12px;
+}
+
+.info-label {
+  color: var(--vscode-descriptionForeground, #cccccc);
+  font-weight: 500;
+}
+
+.info-value {
+  color: var(--vscode-editor-foreground, #d4d4d4);
+  font-family: monospace;
+}
+
+.format-badge {
+  background: var(--vscode-button-background, #0e639c);
+  color: var(--vscode-button-foreground, #ffffff);
+  padding: 0.125rem 0.5rem;
+  border-radius: 3px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+/* EUPH features */
+.euph-features {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 0.75rem;
+}
+
+.feature-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  background: var(--vscode-editor-background, #1e1e1e);
+  border: 1px solid var(--vscode-panel-border, #3c3c3c);
+  border-radius: 4px;
+}
+
+.feature-icon {
+  font-size: 16px;
+}
+
+.feature-text {
+  font-size: 12px;
+  color: var(--vscode-editor-foreground, #d4d4d4);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .audio-preview-container {
+    padding: 0.5rem;
+  }
+  
+  .player-controls {
+    gap: 0.75rem;
+  }
+  
+  .volume-bar {
+    width: 150px;
+  }
+  
+  .info-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .euph-features {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Dark theme adjustments */
+@media (prefers-color-scheme: dark) {
+  .audio-preview-container {
+    background: #1e1e1e;
+    color: #d4d4d4;
+  }
+  
+  .audio-preview-player,
+  .audio-info {
+    background: #252526;
+    border-color: #3c3c3c;
+  }
+  
+  .play-button {
+    background: #0e639c;
+    color: #ffffff;
+  }
+  
+  .play-button:hover {
+    background: #1177bb;
+  }
+}
+
+/* Light theme adjustments */
+@media (prefers-color-scheme: light) {
+  .audio-preview-container {
+    background: #ffffff;
+    color: #333333;
+  }
+  
+  .audio-preview-player,
+  .audio-info {
+    background: #f3f3f3;
+    border-color: #e1e1e1;
+  }
+  
+  .play-button {
+    background: #0078d4;
+    color: #ffffff;
+  }
+  
+  .play-button:hover {
+    background: #106ebe;
+  }
+}
+

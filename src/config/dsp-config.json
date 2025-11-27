@@ -1,0 +1,30 @@
+{
+  "modules": {
+    "relativisticEffects": {
+      "enabled": true,
+      "priority": "high"
+    },
+    "spatialAudio": {
+      "enabled": true,
+      "priority": "high"
+    },
+    "stemSeparator": {
+      "enabled": true,
+      "priority": "medium"
+    },
+    "aiEnhancer": {
+      "enabled": true,
+      "priority": "medium"
+    },
+    "euphCompressor": {
+      "enabled": true,
+      "priority": "low"
+    }
+  },
+  "processing": {
+    "sampleRate": 44100,
+    "bufferSize": 1024,
+    "useWebWorkers": true,
+    "useAudioWorklet": true
+  }
+}

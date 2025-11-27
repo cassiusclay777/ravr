@@ -1,0 +1,107 @@
+# RAVR Audio Engine - Slack Integration Configuration
+# Vytvořeno: 2025-09-25
+
+# Základní nastavení připojení
+slack:
+  # Aplikační přístupové údaje (nutno nahradit vlastními)
+  api_token: "xoxb-your-bot-token-here"  # Bot User OAuth Token
+  signing_secret: "your-signing-secret"   # Signing Secret pro verifikaci
+  app_token: "xapp-your-app-token-here"   # App-Level Token pro Socket Mode
+
+  # Obecná nastavení
+  app_name: "RAVR Audio Engine"
+  debug_mode: false
+  socket_mode: true  # Používat Socket Mode místo klasického HTTP endpointu
+
+# Nastavení notifikací
+notifications:
+  # Kanály pro různé typy zpráv
+  channels:
+    general: "#ravr-general"           # Hlavní kanál pro obecné zprávy
+    alerts: "#ravr-alerts"             # Pro chyby a upozornění
+    audio_processing: "#ravr-audio"    # Pro události související s audio zpracováním
+  
+  # Typy notifikací
+  events:
+    audio_processing:
+      enabled: true
+      level: "info"      # info, warn, error
+    ai_enhancement:
+      enabled: true
+      level: "info"
+    errors:
+      enabled: true
+      detailed: true     # Zahrnout stack trace
+    user_actions:
+      enabled: false     # Nesledovat akce uživatelů
+
+# Slash příkazy
+commands:
+  - name: "/ravr-status"
+    description: "Získat aktuální stav RAVR Audio Engine"
+  - name: "/ravr-control"
+    description: "Spustit/zastavit audio processing"
+    options:
+      - name: "action"
+        description: "Akce ke spuštění"
+        type: "string"
+        required: true
+        choices:
+          - name: "start"
+            value: "start"
+          - name: "stop"
+            value: "stop"
+          - name: "pause"
+            value: "pause"
+  - name: "/ravr-enhance"
+    description: "Spustit AI vylepšení pro audio soubor"
+    options:
+      - name: "file"
+        description: "Audio soubor ke zpracování"
+        type: "file"
+        required: true
+      - name: "model"
+        description: "AI model k použití"
+        type: "string"
+        required: false
+        choices:
+          - name: "AudioSR"
+            value: "audiosr"
+          - name: "Demucs"
+            value: "demucs"
+          - name: "DDSP"
+            value: "ddsp"
+
+# Interaktivní komponenty
+interactive:
+  modals:
+    enable_audio_controls: true
+    enable_dsp_settings: true
+  
+  blocks:
+    - type: "audio_player"
+      enabled: true
+    - type: "dsp_controls"
+      enabled: true
+    - type: "preset_selector"
+      enabled: true
+
+# Nastavení logování
+logging:
+  level: "info"           # debug, info, warn, error
+  include_timestamps: true
+  log_to_channel: "#ravr-logs"
+  rotate_logs: true
+  max_log_age_days: 7
+
+# Instalační instrukce:
+# 1. Nahraďte výše uvedené tokeny skutečnými hodnotami z Slack API sekce na https://api.slack.com/apps
+# 2. Přidejte potřebná oprávnění v sekci OAuth & Permissions:
+#    - channels:read
+#    - chat:write
+#    - commands
+#    - files:read
+#    - files:write
+# 3. V sekci Event Subscriptions aktivujte Socket Mode
+# 4. Vytvořte App-Level Token s oprávněním connections:write
+# 5. Nainstalujte aplikaci do vašeho Slack workspacu

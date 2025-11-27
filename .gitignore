@@ -1,0 +1,92 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+pnpm-lock.yaml
+
+# Build outputs
+dist/
+dist-electron/
+target/
+android/build/
+ios/build/
+*.vsix
+*.exe
+*.dll
+*.pdb
+*.lib
+*.rlib
+*.rmeta
+*.d
+
+# Environment & secrets
+.env
+.env.local
+*.cert
+*.key
+
+# IDE & editors
+.vscode/
+.idea/
+.cursor/
+.windsurf/
+.claude/
+.vs/
+.settings/
+
+# Python virtual environments
+.venv/
+__pycache__/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs & temporary files
+*.log
+*.tmp
+*.stamp
+folder-log.txt
+
+# Backups & copies
+backup/
+*- kopie/
+
+# External dependencies & tools
+modelcontextprotocol/
+external_plugins/
+oracleJdk-25/
+vscode-audio-preview-main/
+mcp-server-mysql-2.0.5/
+wasm-pack-init.exe
+
+# Build artifacts & compiled files
+*.o
+*.a
+*.so
+*.dylib
+out/
+# Build outputs
+dist/
+dist-electron/
+dist - kopie/
+
+# Rust build artifacts
+src-rust/target/
+**/*.rlib
+**/*.pdb
+**/*.rmeta
+
+# External JDK
+oracleJdk-*/
+
+# External projects
+mcp-server-mysql-*/
+
+# Desktop.ini
+desktop.ini
+
+SECURITY_INCIDENT_REPORT.md
+claude_desktop_config.json
+*.key
+*.secret
+

@@ -1,0 +1,21 @@
+{
+  "player": {
+    "playPause": "Space",
+    "nextTrack": "ArrowRight",
+    "prevTrack": "ArrowLeft",
+    "volumeUp": "ArrowUp",
+    "volumeDown": "ArrowDown",
+    "mute": "M"
+  },
+  "dsp": {
+    "toggleEQ": "E",
+    "toggleCompressor": "C",
+    "toggleReverb": "R",
+    "toggleAI": "A"
+  },
+  "ui": {
+    "toggleFullscreen": "F",
+    "toggleAdvanced": "Tab",
+    "openSettings": "S"
+  }
+}

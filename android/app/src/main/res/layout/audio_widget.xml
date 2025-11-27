@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="8dp"
+    android:background="@drawable/widget_background"
+    android:gravity="center">
+
+    <!-- App Icon and Title -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingBottom="8dp">
+
+        <ImageView
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:src="@mipmap/ic_launcher"
+            android:contentDescription="RAVR Icon" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="RAVR Audio"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp" />
+    </LinearLayout>
+
+    <!-- Album Art Placeholder -->
+    <ImageView
+        android:id="@+id/widget_album_art"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:src="@drawable/default_album_art"
+        android:scaleType="centerCrop"
+        android:contentDescription="Album Art"
+        android:layout_marginBottom="8dp" />
+
+    <!-- Track Info -->
+    <TextView
+        android:id="@+id/widget_track_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="No Track Playing"
+        android:textColor="#FFFFFF"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:maxLines="1"
+        android:ellipsize="marquee"
+        android:marqueeRepeatLimit="marquee_forever"
+        android:scrollHorizontally="true"
+        android:paddingBottom="4dp" />
+
+    <TextView
+        android:id="@+id/widget_artist"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Unknown Artist"
+        android:textColor="#B0B0B0"
+        android:textSize="12sp"
+        android:gravity="center"
+        android:maxLines="1"
+        android:ellipsize="end"
+        android:paddingBottom="12dp" />
+
+    <!-- Control Buttons -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:paddingTop="8dp">
+
+        <!-- Previous Button -->
+        <ImageButton
+            android:id="@+id/widget_previous"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:src="@android:drawable/ic_media_previous"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Previous"
+            android:layout_marginEnd="8dp"
+            android:tint="#06B6D4" />
+
+        <!-- Play/Pause Button -->
+        <ImageButton
+            android:id="@+id/widget_play_pause"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:src="@android:drawable/ic_media_play"
+            android:background="@drawable/play_button_background"
+            android:contentDescription="Play/Pause"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:tint="#FFFFFF" />
+
+        <!-- Next Button -->
+        <ImageButton
+            android:id="@+id/widget_next"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:src="@android:drawable/ic_media_next"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Next"
+            android:layout_marginStart="8dp"
+            android:tint="#06B6D4" />
+    </LinearLayout>
+
+    <!-- Stop Button -->
+    <ImageButton
+        android:id="@+id/widget_stop"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:src="@android:drawable/ic_delete"
+        android:background="?android:attr/selectableItemBackgroundBorderless"
+        android:contentDescription="Stop"
+        android:layout_marginTop="8dp"
+        android:tint="#EF4444" />
+
+</LinearLayout>

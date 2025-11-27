@@ -1,0 +1,589 @@
+import React, { useState, useRef, useEffect } from 'react';
+import { FiUpload, FiPlay, FiPause, FiVolume2 } from 'react-icons/fi';
+import { HiSparkles } from 'react-icons/hi';
+
+interface GenrePreset {
+  name: string;
+  bass: number;
+  clarity: number;
+  spatial: number;
+  loudness: number;
+}
+
+const GENRE_PRESETS: Record<string, GenrePreset> = {
+  Auto: { name: 'Auto', bass: 50, clarity: 50, spatial: 50, loudness: 50 },
+  Electronic: { name: 'Electronic', bass: 75, clarity: 65, spatial: 80, loudness: 70 },
+  Rock: { name: 'Rock', bass: 60, clarity: 75, spatial: 60, loudness: 80 },
+  Classical: { name: 'Classical', bass: 40, clarity: 70, spatial: 75, loudness: 40 },
+  'Hip-Hop': { name: 'Hip-Hop', bass: 85, clarity: 55, spatial: 65, loudness: 75 },
+  Jazz: { name: 'Jazz', bass: 45, clarity: 80, spatial: 70, loudness: 50 },
+};
+
+export default function EuphLiveProcessor() {
+  const [audioFile, setAudioFile] = useState<File | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [isEuphEnabled, setIsEuphEnabled] = useState(true);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [selectedGenre, setSelectedGenre] = useState<string>('Auto');
+  const [detectedGenre, setDetectedGenre] = useState<string>('');
+  const [isDragging, setIsDragging] = useState(false);
+
+  // DSP Parameters
+  const [bass, setBass] = useState(50);
+  const [clarity, setClarity] = useState(50);
+  const [spatial, setSpatial] = useState(50);
+  const [loudness, setLoudness] = useState(50);
+
+  // Audio Refs
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const sourceNodeRef = useRef<AudioBufferSourceNode | null>(null);
+  const audioBufferRef = useRef<AudioBuffer | null>(null);
+  const startTimeRef = useRef<number>(0);
+  const pauseTimeRef = useRef<number>(0);
+
+  // DSP Nodes
+  const lowShelfRef = useRef<BiquadFilterNode | null>(null);
+  const midPeakRef = useRef<BiquadFilterNode | null>(null);
+  const highShelfRef = useRef<BiquadFilterNode | null>(null);
+  const compressorRef = useRef<DynamicsCompressorNode | null>(null);
+  const gainNodeRef = useRef<GainNode | null>(null);
+
+  // Animation frame for progress
+  const animationFrameRef = useRef<number | null>(null);
+
+  // Initialize Audio Context and DSP chain
+  useEffect(() => {
+    const initAudioContext = () => {
+      if (!audioContextRef.current) {
+        audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+
+        // Create DSP nodes
+        lowShelfRef.current = audioContextRef.current.createBiquadFilter();
+        lowShelfRef.current.type = 'lowshelf';
+        lowShelfRef.current.frequency.value = 200;
+
+        midPeakRef.current = audioContextRef.current.createBiquadFilter();
+        midPeakRef.current.type = 'peaking';
+        midPeakRef.current.frequency.value = 2000;
+        midPeakRef.current.Q.value = 1;
+
+        highShelfRef.current = audioContextRef.current.createBiquadFilter();
+        highShelfRef.current.type = 'highshelf';
+        highShelfRef.current.frequency.value = 8000;
+
+        compressorRef.current = audioContextRef.current.createDynamicsCompressor();
+        compressorRef.current.threshold.value = -24;
+        compressorRef.current.knee.value = 30;
+        compressorRef.current.ratio.value = 12;
+        compressorRef.current.attack.value = 0.003;
+        compressorRef.current.release.value = 0.25;
+
+        gainNodeRef.current = audioContextRef.current.createGain();
+        gainNodeRef.current.gain.value = 1;
+      }
+    };
+
+    initAudioContext();
+
+    return () => {
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+    };
+  }, []);
+
+  // Update DSP parameters
+  useEffect(() => {
+    if (!audioContextRef.current) return;
+
+    // Bass boost (low shelf gain: -10dB to +10dB)
+    if (lowShelfRef.current) {
+      lowShelfRef.current.gain.value = ((bass - 50) / 50) * 10;
+    }
+
+    // Clarity (mid peak gain: -6dB to +6dB)
+    if (midPeakRef.current) {
+      midPeakRef.current.gain.value = ((clarity - 50) / 50) * 6;
+    }
+
+    // Spatial/Brightness (high shelf gain: -8dB to +8dB)
+    if (highShelfRef.current) {
+      highShelfRef.current.gain.value = ((spatial - 50) / 50) * 8;
+    }
+
+    // Loudness (compressor ratio: 1 to 20, makeup gain)
+    if (compressorRef.current && gainNodeRef.current) {
+      const ratio = 1 + (loudness / 100) * 19;
+      compressorRef.current.ratio.value = ratio;
+      // Makeup gain: 0.8 to 2.0
+      gainNodeRef.current.gain.value = 0.8 + (loudness / 100) * 1.2;
+    }
+  }, [bass, clarity, spatial, loudness]);
+
+  // Update progress
+  const updateProgress = () => {
+    if (audioContextRef.current && isPlaying) {
+      const elapsed = audioContextRef.current.currentTime - startTimeRef.current;
+      setCurrentTime(elapsed);
+
+      if (elapsed >= duration) {
+        stopAudio();
+      } else {
+        animationFrameRef.current = requestAnimationFrame(updateProgress);
+      }
+    }
+  };
+
+  // Handle file upload
+  const handleFileUpload = async (file: File) => {
+    if (!file.type.startsWith('audio/')) {
+      alert('Please upload a valid audio file');
+      return;
+    }
+
+    setAudioFile(file);
+    stopAudio();
+
+    // Simulate AI genre detection
+    setTimeout(() => {
+      const genres = ['Electronic', 'Rock', 'Classical', 'Hip-Hop', 'Jazz'];
+      const detected = genres[Math.floor(Math.random() * genres.length)];
+      setDetectedGenre(detected);
+      setSelectedGenre('Auto');
+
+      // Apply detected genre preset
+      const preset = GENRE_PRESETS[detected];
+      setBass(preset.bass);
+      setClarity(preset.clarity);
+      setSpatial(preset.spatial);
+      setLoudness(preset.loudness);
+    }, 800);
+
+    // Load audio file
+    try {
+      const arrayBuffer = await file.arrayBuffer();
+      if (audioContextRef.current) {
+        const audioBuffer = await audioContextRef.current.decodeAudioData(arrayBuffer);
+        audioBufferRef.current = audioBuffer;
+        setDuration(audioBuffer.duration);
+        setCurrentTime(0);
+        pauseTimeRef.current = 0;
+      }
+    } catch (error) {
+      console.error('Error loading audio file:', error);
+      alert('Error loading audio file');
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const file = e.dataTransfer.files[0];
+    if (file) handleFileUpload(file);
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = () => {
+    setIsDragging(false);
+  };
+
+  // Play audio
+  const playAudio = () => {
+    if (!audioContextRef.current || !audioBufferRef.current) return;
+
+    if (audioContextRef.current.state === 'suspended') {
+      audioContextRef.current.resume();
+    }
+
+    // Create new source
+    const source = audioContextRef.current.createBufferSource();
+    source.buffer = audioBufferRef.current;
+    sourceNodeRef.current = source;
+
+    // Route through DSP chain or bypass
+    if (isEuphEnabled) {
+      // EUPH ON: Full DSP chain
+      source.connect(lowShelfRef.current!);
+      lowShelfRef.current!.connect(midPeakRef.current!);
+      midPeakRef.current!.connect(highShelfRef.current!);
+      highShelfRef.current!.connect(compressorRef.current!);
+      compressorRef.current!.connect(gainNodeRef.current!);
+      gainNodeRef.current!.connect(audioContextRef.current.destination);
+    } else {
+      // EUPH OFF: Direct bypass
+      source.connect(audioContextRef.current.destination);
+    }
+
+    startTimeRef.current = audioContextRef.current.currentTime - pauseTimeRef.current;
+    source.start(0, pauseTimeRef.current);
+    setIsPlaying(true);
+
+    source.onended = () => {
+      if (pauseTimeRef.current < duration) {
+        stopAudio();
+      }
+    };
+
+    animationFrameRef.current = requestAnimationFrame(updateProgress);
+  };
+
+  // Pause audio
+  const pauseAudio = () => {
+    if (sourceNodeRef.current) {
+      sourceNodeRef.current.stop();
+      sourceNodeRef.current.disconnect();
+      sourceNodeRef.current = null;
+    }
+    if (animationFrameRef.current) {
+      cancelAnimationFrame(animationFrameRef.current);
+    }
+    pauseTimeRef.current = currentTime;
+    setIsPlaying(false);
+  };
+
+  // Stop audio
+  const stopAudio = () => {
+    if (sourceNodeRef.current) {
+      sourceNodeRef.current.stop();
+      sourceNodeRef.current.disconnect();
+      sourceNodeRef.current = null;
+    }
+    if (animationFrameRef.current) {
+      cancelAnimationFrame(animationFrameRef.current);
+    }
+    setIsPlaying(false);
+    setCurrentTime(0);
+    pauseTimeRef.current = 0;
+  };
+
+  // Toggle play/pause
+  const togglePlayPause = () => {
+    if (isPlaying) {
+      pauseAudio();
+    } else {
+      playAudio();
+    }
+  };
+
+  // Toggle EUPH on/off (reconnect audio graph)
+  const toggleEuph = () => {
+    const wasPlaying = isPlaying;
+    if (wasPlaying) {
+      pauseAudio();
+    }
+    setIsEuphEnabled(!isEuphEnabled);
+    if (wasPlaying) {
+      // Need to wait for state update, use setTimeout
+      setTimeout(() => {
+        playAudio();
+      }, 50);
+    }
+  };
+
+  // Handle genre preset selection
+  const handleGenreChange = (genre: string) => {
+    setSelectedGenre(genre);
+    const preset = GENRE_PRESETS[genre === 'Auto' && detectedGenre ? detectedGenre : genre];
+    setBass(preset.bass);
+    setClarity(preset.clarity);
+    setSpatial(preset.spatial);
+    setLoudness(preset.loudness);
+  };
+
+  // Handle progress bar click
+  const handleProgressClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!duration) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const percentage = x / rect.width;
+    const newTime = percentage * duration;
+
+    pauseTimeRef.current = newTime;
+    setCurrentTime(newTime);
+
+    if (isPlaying) {
+      pauseAudio();
+      setTimeout(() => playAudio(), 50);
+    }
+  };
+
+  // Format time
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-8">
+      <div className="max-w-4xl mx-auto">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <div className="flex items-center justify-center gap-3 mb-3">
+            <HiSparkles className="text-5xl text-cyan-400" />
+            <h1 className="text-5xl font-bold bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
+              EUPH Live Processor
+            </h1>
+          </div>
+          <p className="text-gray-300 text-lg">Real-Time Audio Enhancement Engine</p>
+        </div>
+
+        {/* Main Container */}
+        <div className="bg-white/10 backdrop-blur-xl rounded-3xl p-8 border border-white/20 shadow-2xl">
+
+          {/* Upload Area */}
+          {!audioFile ? (
+            <div
+              onDrop={handleDrop}
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              className={`border-2 border-dashed rounded-2xl p-16 text-center transition-all ${
+                isDragging
+                  ? 'border-cyan-400 bg-cyan-400/10'
+                  : 'border-gray-400/50 hover:border-cyan-400/70 hover:bg-white/5'
+              }`}
+            >
+              <FiUpload className="text-6xl text-cyan-400 mx-auto mb-4" />
+              <h3 className="text-2xl font-semibold text-white mb-2">Drop Your Audio Here</h3>
+              <p className="text-gray-300 mb-4">or click to browse</p>
+              <input
+                type="file"
+                accept="audio/*"
+                onChange={(e) => e.target.files?.[0] && handleFileUpload(e.target.files[0])}
+                className="hidden"
+                id="audio-upload"
+              />
+              <label
+                htmlFor="audio-upload"
+                className="inline-block px-6 py-3 bg-gradient-to-r from-cyan-500 to-purple-500 text-white rounded-lg cursor-pointer hover:from-cyan-600 hover:to-purple-600 transition-all"
+              >
+                Choose File
+              </label>
+              <p className="text-gray-400 text-sm mt-4">Supports MP3, WAV, FLAC, and more</p>
+            </div>
+          ) : (
+            <>
+              {/* File Info */}
+              <div className="mb-6 text-center">
+                <h3 className="text-xl font-semibold text-white mb-2">{audioFile.name}</h3>
+                {detectedGenre && (
+                  <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-cyan-500/20 to-purple-500/20 rounded-full border border-cyan-400/30">
+                    <HiSparkles className="text-cyan-400" />
+                    <span className="text-cyan-300 text-sm">AI Detected: {detectedGenre}</span>
+                  </div>
+                )}
+              </div>
+
+              {/* EUPH Toggle */}
+              <div className="flex items-center justify-center gap-4 mb-8">
+                <span className={`text-lg font-medium ${!isEuphEnabled ? 'text-white' : 'text-gray-400'}`}>
+                  Original
+                </span>
+                <button
+                  onClick={toggleEuph}
+                  className={`relative w-20 h-10 rounded-full transition-all duration-300 ${
+                    isEuphEnabled
+                      ? 'bg-gradient-to-r from-cyan-500 to-purple-500'
+                      : 'bg-gray-600'
+                  }`}
+                >
+                  <div
+                    className={`absolute top-1 left-1 w-8 h-8 bg-white rounded-full shadow-lg transition-transform duration-300 ${
+                      isEuphEnabled ? 'transform translate-x-10' : ''
+                    }`}
+                  />
+                </button>
+                <span className={`text-lg font-medium ${isEuphEnabled ? 'text-white' : 'text-gray-400'}`}>
+                  EUPH Enhanced
+                </span>
+              </div>
+
+              {/* Player Controls */}
+              <div className="mb-8">
+                <div className="flex items-center justify-center gap-6 mb-4">
+                  <button
+                    onClick={togglePlayPause}
+                    disabled={!audioBufferRef.current}
+                    className="w-16 h-16 rounded-full bg-gradient-to-r from-cyan-500 to-purple-500 text-white flex items-center justify-center text-2xl hover:from-cyan-600 hover:to-purple-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+                  >
+                    {isPlaying ? <FiPause /> : <FiPlay className="ml-1" />}
+                  </button>
+                </div>
+
+                {/* Progress Bar */}
+                <div className="space-y-2">
+                  <div
+                    onClick={handleProgressClick}
+                    className="h-2 bg-gray-700/50 rounded-full cursor-pointer overflow-hidden"
+                  >
+                    <div
+                      className="h-full bg-gradient-to-r from-cyan-500 to-purple-500 transition-all"
+                      style={{ width: `${duration ? (currentTime / duration) * 100 : 0}%` }}
+                    />
+                  </div>
+                  <div className="flex justify-between text-sm text-gray-300">
+                    <span>{formatTime(currentTime)}</span>
+                    <span>{formatTime(duration)}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Genre Presets */}
+              <div className="mb-8">
+                <h4 className="text-white font-semibold mb-3 flex items-center gap-2">
+                  <FiVolume2 />
+                  Genre Presets
+                </h4>
+                <div className="grid grid-cols-3 gap-2">
+                  {Object.keys(GENRE_PRESETS).map((genre) => (
+                    <button
+                      key={genre}
+                      onClick={() => handleGenreChange(genre)}
+                      className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                        selectedGenre === genre
+                          ? 'bg-gradient-to-r from-cyan-500 to-purple-500 text-white shadow-lg'
+                          : 'bg-white/10 text-gray-300 hover:bg-white/20'
+                      }`}
+                    >
+                      {genre}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* DSP Controls */}
+              <div className="space-y-6">
+                <h4 className="text-white font-semibold mb-4">DSP Parameters</h4>
+
+                {/* Bass Boost */}
+                <div>
+                  <div className="flex justify-between mb-2">
+                    <label className="text-gray-300 font-medium">Bass Boost</label>
+                    <span className="text-cyan-400 font-semibold">{bass}%</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="0"
+                    max="100"
+                    value={bass}
+                    onChange={(e) => setBass(Number(e.target.value))}
+                    className="w-full h-2 bg-gray-700/50 rounded-lg appearance-none cursor-pointer slider"
+                  />
+                </div>
+
+                {/* Clarity */}
+                <div>
+                  <div className="flex justify-between mb-2">
+                    <label className="text-gray-300 font-medium">Clarity</label>
+                    <span className="text-cyan-400 font-semibold">{clarity}%</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="0"
+                    max="100"
+                    value={clarity}
+                    onChange={(e) => setClarity(Number(e.target.value))}
+                    className="w-full h-2 bg-gray-700/50 rounded-lg appearance-none cursor-pointer slider"
+                  />
+                </div>
+
+                {/* Spatial */}
+                <div>
+                  <div className="flex justify-between mb-2">
+                    <label className="text-gray-300 font-medium">Spatial</label>
+                    <span className="text-cyan-400 font-semibold">{spatial}%</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="0"
+                    max="100"
+                    value={spatial}
+                    onChange={(e) => setSpatial(Number(e.target.value))}
+                    className="w-full h-2 bg-gray-700/50 rounded-lg appearance-none cursor-pointer slider"
+                  />
+                </div>
+
+                {/* Loudness */}
+                <div>
+                  <div className="flex justify-between mb-2">
+                    <label className="text-gray-300 font-medium">Loudness</label>
+                    <span className="text-cyan-400 font-semibold">{loudness}%</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="0"
+                    max="100"
+                    value={loudness}
+                    onChange={(e) => setLoudness(Number(e.target.value))}
+                    className="w-full h-2 bg-gray-700/50 rounded-lg appearance-none cursor-pointer slider"
+                  />
+                </div>
+              </div>
+
+              {/* Change File Button */}
+              <div className="mt-8 text-center">
+                <label
+                  htmlFor="audio-upload-change"
+                  className="inline-block px-6 py-3 bg-white/10 text-white rounded-lg cursor-pointer hover:bg-white/20 transition-all border border-white/20"
+                >
+                  Change Audio File
+                </label>
+                <input
+                  type="file"
+                  accept="audio/*"
+                  onChange={(e) => e.target.files?.[0] && handleFileUpload(e.target.files[0])}
+                  className="hidden"
+                  id="audio-upload-change"
+                />
+              </div>
+            </>
+          )}
+        </div>
+
+        {/* Info Footer */}
+        <div className="mt-8 text-center text-gray-400 text-sm">
+          <p className="flex items-center justify-center gap-2">
+            <HiSparkles className="text-cyan-400" />
+            Real-time audio processing powered by Web Audio API
+          </p>
+        </div>
+      </div>
+
+      {/* Custom Slider Styles */}
+      <style>{`
+        .slider::-webkit-slider-thumb {
+          appearance: none;
+          width: 20px;
+          height: 20px;
+          border-radius: 50%;
+          background: linear-gradient(to right, #06b6d4, #a855f7);
+          cursor: pointer;
+          box-shadow: 0 0 10px rgba(6, 182, 212, 0.5);
+        }
+
+        .slider::-moz-range-thumb {
+          width: 20px;
+          height: 20px;
+          border-radius: 50%;
+          background: linear-gradient(to right, #06b6d4, #a855f7);
+          cursor: pointer;
+          border: none;
+          box-shadow: 0 0 10px rgba(6, 182, 212, 0.5);
+        }
+
+        .slider::-webkit-slider-thumb:hover {
+          box-shadow: 0 0 20px rgba(6, 182, 212, 0.8);
+        }
+
+        .slider::-moz-range-thumb:hover {
+          box-shadow: 0 0 20px rgba(6, 182, 212, 0.8);
+        }
+      `}</style>
+    </div>
+  );
+}

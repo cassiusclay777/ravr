@@ -1,0 +1,39 @@
+import sys
+from pydub import AudioSegment
+from pydub.effects import normalize, low_pass_filter, high_pass_filter, compress_dynamic_range
+import os
+
+def ravr_process(input_file, output_file):
+    print(f"[RAVR] Zpracovávám: {input_file}")
+    audio = AudioSegment.from_file(input_file)
+
+    # Normalize loudness
+    audio = normalize(audio)
+
+    # Bass Boost (low pass + overlay)
+    bass = low_pass_filter(audio, cutoff=150).apply_gain(6.5)
+    audio = audio.overlay(bass)
+
+    # High clarity (high-pass boost)
+    highs = high_pass_filter(audio, cutoff=8000).apply_gain(3.0)
+    audio = audio.overlay(highs)
+
+    # Compression
+    audio = compress_dynamic_range(audio, threshold=-25.0, ratio=4.5)
+
+    # Stereo widen (fake stereo)
+    audio = audio.set_channels(2).pan(-0.2).overlay(audio.pan(0.2))
+
+    # Export to WAV
+    audio.export(output_file, format="wav")
+    print(f"[RAVR] Hotovo! Výstup: {output_file}")
+
+if __name__ == "__main__":
+    if len(sys.argv) < 2:
+        print("Použití: python ravr_dsp.py vstup.wav")
+        sys.exit(1)
+
+    input_file = sys.argv[1]
+    filename = os.path.splitext(input_file)[0]
+    output_file = f"{filename}_ravr.wav"
+    ravr_process(input_file, output_file)

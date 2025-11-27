@@ -1,0 +1,34 @@
+[package]
+name = "ravr-wasm"
+version = "2.0.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+wasm-bindgen = "0.2"
+js-sys = "0.3"
+web-sys = "0.3"
+serde = { version = "1.0", features = ["derive"] }
+serde-wasm-bindgen = "0.4"
+zstd = "0.13"
+realfft = "3.3"
+apodize = "1.0"
+rayon = "1.8"
+
+# Console error panic hook for debugging
+console_error_panic_hook = { version = "0.1.7", optional = true }
+
+[dependencies.web-sys]
+version = "0.3"
+features = [
+  "console",
+  "AudioContext",
+  "AudioBuffer",
+  "AudioNode",
+  "GainNode",
+]
+
+[features]
+default = ["console_error_panic_hook"]

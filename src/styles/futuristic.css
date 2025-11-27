@@ -1,0 +1,191 @@
+/* Futuristic RAVR Theme */
+:root {
+  --ravr-primary: #00ffff;
+  --ravr-secondary: #ff00ff;
+  --ravr-accent: #ffff00;
+  --ravr-bg-dark: #0a0a0f;
+  --ravr-bg-medium: #141420;
+  --ravr-bg-light: #1e1e2e;
+  --ravr-border: rgba(0, 255, 255, 0.2);
+  --ravr-glow: 0 0 20px rgba(0, 255, 255, 0.5);
+}
+
+/* Neon glow effects */
+.neon-border {
+  border: 1px solid var(--ravr-primary);
+  box-shadow: var(--ravr-glow), inset 0 0 10px rgba(0, 255, 255, 0.1);
+}
+
+.neon-text {
+  color: var(--ravr-primary);
+  text-shadow: 0 0 10px currentColor;
+}
+
+.neon-button {
+  background: linear-gradient(135deg, rgba(0, 255, 255, 0.1), rgba(255, 0, 255, 0.1));
+  border: 1px solid var(--ravr-primary);
+  color: var(--ravr-primary);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.neon-button::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: radial-gradient(circle, rgba(0, 255, 255, 0.3), transparent 70%);
+  transition: width 0.3s, height 0.3s;
+  transform: translate(-50%, -50%);
+}
+
+.neon-button:hover {
+  box-shadow: var(--ravr-glow);
+  transform: translateY(-2px);
+}
+
+.neon-button:hover::before {
+  width: 100%;
+  height: 100%;
+}
+
+/* Holographic gradient */
+.holographic {
+  background: linear-gradient(
+    135deg,
+    #667eea 0%,
+    #764ba2 25%,
+    #f093fb 50%,
+    #4facfe 75%,
+    #00f2fe 100%
+  );
+  background-size: 400% 400%;
+  animation: holographic 15s ease infinite;
+}
+
+@keyframes holographic {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Cyber grid background */
+.cyber-grid {
+  background-image: 
+    linear-gradient(rgba(0, 255, 255, 0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 255, 255, 0.1) 1px, transparent 1px);
+  background-size: 50px 50px;
+  animation: grid-move 10s linear infinite;
+}
+
+@keyframes grid-move {
+  0% { background-position: 0 0; }
+  100% { background-position: 50px 50px; }
+}
+
+/* Glitch effect */
+.glitch {
+  position: relative;
+  animation: glitch 2s infinite;
+}
+
+.glitch::before,
+.glitch::after {
+  content: attr(data-text);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.glitch::before {
+  animation: glitch-1 0.5s infinite;
+  color: var(--ravr-secondary);
+  z-index: -1;
+}
+
+.glitch::after {
+  animation: glitch-2 0.5s infinite;
+  color: var(--ravr-accent);
+  z-index: -2;
+}
+
+@keyframes glitch {
+  0%, 100% { transform: translate(0); }
+  20% { transform: translate(-2px, 2px); }
+  40% { transform: translate(-2px, -2px); }
+  60% { transform: translate(2px, 2px); }
+  80% { transform: translate(2px, -2px); }
+}
+
+@keyframes glitch-1 {
+  0%, 100% { clip-path: inset(0 0 100% 0); }
+  25% { clip-path: inset(0 0 60% 0); }
+  50% { clip-path: inset(40% 0 40% 0); }
+  75% { clip-path: inset(80% 0 0 0); }
+}
+
+@keyframes glitch-2 {
+  0%, 100% { clip-path: inset(100% 0 0 0); }
+  25% { clip-path: inset(60% 0 0 0); }
+  50% { clip-path: inset(20% 0 60% 0); }
+  75% { clip-path: inset(0 0 80% 0); }
+}
+
+/* Scanner line */
+.scanner {
+  position: relative;
+  overflow: hidden;
+}
+
+.scanner::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--ravr-primary), transparent);
+  animation: scan 3s linear infinite;
+}
+
+@keyframes scan {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(100vh); }
+}
+
+/* Futuristic scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--ravr-bg-dark);
+  border: 1px solid var(--ravr-border);
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, var(--ravr-primary), var(--ravr-secondary));
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, var(--ravr-secondary), var(--ravr-primary));
+}
+
+/* Audio visualizer bars */
+.viz-bar {
+  background: linear-gradient(to top, var(--ravr-primary), var(--ravr-secondary));
+  box-shadow: 0 0 10px var(--ravr-primary);
+  animation: pulse 1s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.8; }
+  50% { opacity: 1; }
+}

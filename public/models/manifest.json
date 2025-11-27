@@ -1,0 +1,194 @@
+{
+  "version": "1.0.0",
+  "lastUpdated": "2025-01-15T00:00:00Z",
+  "models": [
+    {
+      "id": "demucs-demo",
+      "name": "Demucs HTDemucs v4",
+      "description": "High-quality music source separation with transformer architecture. Separates vocals, drums, bass, and other instruments.",
+      "url": "https://huggingface.co/facebook/demucs/resolve/main/htdemucs.onnx",
+      "size": 204800,
+      "checksum": "sha256:67da11115976e552c8067b79878e13fd640a1c05ae1591dd2d7f56d115336eb3",
+      "version": "4.0.0",
+      "capabilities": [
+        "stem_separation"
+      ],
+      "requirements": {
+        "minRAM": 1024,
+        "supportedFormats": [
+          "wav",
+          "mp3",
+          "flac",
+          "m4a"
+        ],
+        "recommendedGPU": true
+      },
+      "license": "MIT",
+      "author": "Facebook Research"
+    },
+    {
+      "id": "audiosr-demo",
+      "name": "AudioSR Super Resolution",
+      "description": "AI-powered audio super-resolution for enhancing audio quality. Supports 2x and 4x upsampling with configurable enhancement levels.",
+      "url": "https://huggingface.co/haoheliu/AudioSR/resolve/main/audiosr.onnx",
+      "size": 51200,
+      "checksum": "sha256:39139f323ba4b8b54c8d719e57cd20cc1bc7c08a1197a7e544f037ac50afafd8",
+      "version": "1.0.0",
+      "capabilities": [
+        "super_resolution",
+        "quality_enhancement"
+      ],
+      "requirements": {
+        "minRAM": 512,
+        "supportedFormats": [
+          "wav",
+          "mp3",
+          "flac"
+        ],
+        "recommendedGPU": false
+      },
+      "license": "Apache-2.0",
+      "author": "Haohe Liu"
+    },
+    {
+      "id": "ddsp-demo",
+      "name": "DDSP Timbre Transfer",
+      "description": "Differentiable Digital Signal Processing for neural audio synthesis and timbre transformation. Control harmonics, formants, and noise characteristics.",
+      "url": "https://storage.googleapis.com/magentadata/models/ddsp/ddsp_timbre.onnx",
+      "size": 61440,
+      "checksum": "sha256:ee90835b5dfd2b635f4bbd37ced69e85196ac34fb5104a18c5d7c6664acd4e63",
+      "version": "1.0.0",
+      "capabilities": [
+        "timbre_transfer",
+        "harmonic_synthesis"
+      ],
+      "requirements": {
+        "minRAM": 256,
+        "supportedFormats": [
+          "wav"
+        ],
+        "recommendedGPU": false
+      },
+      "license": "Apache-2.0",
+      "author": "Google Magenta"
+    },
+    {
+      "id": "style-transfer-demo",
+      "name": "Music Style Transfer",
+      "description": "Transform musical style and genre while preserving melodic content. Supports multiple genre presets including rock, jazz, classical, and electronic.",
+      "url": "/models/style_transfer.onnx",
+      "size": 40960,
+      "checksum": "sha256:daea0d8193157ded4c282461d82265d2ff738506571ceec8be8d9a87814871c8",
+      "version": "1.0.0",
+      "capabilities": [
+        "style_transfer",
+        "genre_transformation"
+      ],
+      "requirements": {
+        "minRAM": 512,
+        "supportedFormats": [
+          "wav",
+          "mp3"
+        ],
+        "recommendedGPU": true
+      },
+      "license": "MIT",
+      "author": "RAVR AI Team"
+    },
+    {
+      "id": "genre-classifier-demo",
+      "name": "Genre Classifier",
+      "description": "Deep learning-based music genre classification with confidence scores. Detects genre and subgenres from audio analysis.",
+      "url": "/models/genre_classifier.onnx",
+      "size": 8192,
+      "checksum": "sha256:5ac687330ce445fc2bc85e323f083e5ba5639783b614bbeec4c7933112837658",
+      "version": "1.0.0",
+      "capabilities": [
+        "genre_detection",
+        "music_analysis"
+      ],
+      "requirements": {
+        "minRAM": 128,
+        "supportedFormats": [
+          "wav",
+          "mp3",
+          "flac"
+        ],
+        "recommendedGPU": false
+      },
+      "license": "MIT",
+      "author": "RAVR AI Team"
+    },
+    {
+      "id": "auto-mastering-demo",
+      "name": "AI Auto Mastering",
+      "description": "Automated audio mastering with multiple presets for vocals, instruments, and full mixes. Includes loudness normalization and spectral balancing.",
+      "url": "/models/auto_mastering.onnx",
+      "size": 30720,
+      "checksum": "sha256:d4d53294d75c40bc4c99a114d6666e04a19d18bb1a7009b0fa7eb8d80fe082ad",
+      "version": "1.0.0",
+      "capabilities": [
+        "auto_mastering",
+        "loudness_normalization"
+      ],
+      "requirements": {
+        "minRAM": 256,
+        "supportedFormats": [
+          "wav",
+          "mp3",
+          "flac"
+        ],
+        "recommendedGPU": false
+      },
+      "license": "MIT",
+      "author": "RAVR AI Team"
+    }
+  ],
+  "presets": [
+    {
+      "id": "vocal-enhancer",
+      "name": "Vocal Enhancer",
+      "description": "Isolate and enhance vocal quality",
+      "requiredModels": [
+        "audiosr-demo",
+        "demucs-demo",
+        "auto-mastering-demo"
+      ]
+    },
+    {
+      "id": "remix-builder",
+      "name": "Remix Builder",
+      "description": "Separate stems and transform timbres",
+      "requiredModels": [
+        "demucs-demo",
+        "ddsp-demo",
+        "style-transfer-demo"
+      ]
+    },
+    {
+      "id": "quality-boost",
+      "name": "Quality Boost",
+      "description": "Maximum quality with 4x upsampling",
+      "requiredModels": [
+        "audiosr-demo",
+        "auto-mastering-demo"
+      ]
+    },
+    {
+      "id": "stem-separator",
+      "name": "Stem Separator",
+      "description": "Extract individual stems",
+      "requiredModels": [
+        "demucs-demo"
+      ]
+    },
+    {
+      "id": "genre-analyzer",
+      "name": "Genre Analyzer",
+      "description": "Analyze musical genre",
+      "requiredModels": [
+        "genre-classifier-demo"
+      ]
+    }
+  ]
+}

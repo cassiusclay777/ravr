@@ -1,0 +1,31 @@
+{
+  "themes": {
+    "dark": {
+      "primary": "#00ffff",
+      "secondary": "#0066cc",
+      "background": "#0a0a0a",
+      "surface": "#1a1a1a",
+      "text": "#ffffff"
+    },
+    "light": {
+      "primary": "#0066cc",
+      "secondary": "#00ccff",
+      "background": "#ffffff",
+      "surface": "#f5f5f5",
+      "text": "#000000"
+    },
+    "neon": {
+      "primary": "#ff00ff",
+      "secondary": "#00ff00",
+      "background": "#000011",
+      "surface": "#001122",
+      "text": "#ffffff"
+    }
+  },
+  "defaultTheme": "dark",
+  "animations": {
+    "enabled": true,
+    "reducedMotion": false,
+    "duration": 200
+  }
+}

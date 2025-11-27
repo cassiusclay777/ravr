@@ -1,0 +1,37 @@
+{
+  "models": {
+    "audioSR": {
+      "enabled": true,
+      "url": "/models/audiosr-basic-44100.onnx",
+      "inputSize": 8192,
+      "outputSize": 16384
+    },
+    "demucs": {
+      "enabled": true,
+      "url": "/models/demucs-mdx-extra.onnx",
+      "stems": [
+        "vocals",
+        "drums",
+        "bass",
+        "other"
+      ]
+    },
+    "genreDetection": {
+      "enabled": true,
+      "url": "/models/genre-classifier.onnx",
+      "genres": [
+        "electronic",
+        "rock",
+        "jazz",
+        "classical",
+        "hip-hop"
+      ]
+    }
+  },
+  "processing": {
+    "batchSize": 4096,
+    "usePyTorchJIT": false,
+    "useWebGL": true,
+    "threads": 4
+  }
+}
