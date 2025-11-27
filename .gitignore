@@ -90,3 +90,13 @@ claude_desktop_config.json
 *.key
 *.secret
 
+
+ravr-py/
+*.pyc
+__pycache__/
+dist/
+.vs/
+*.db
+*.db-shm
+*.db-wal
+
