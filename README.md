@@ -52,7 +52,8 @@ RAVR is a high-performance web audio engine built with React, TypeScript, and th
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/ravr-audio.git
+git clone https://github.com/cassiusclay777/ravr.git
+
 
 # Navigate to the project directory
 cd ravr-audio
