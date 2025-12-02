@@ -100,3 +100,5 @@ dist/
 *.db-shm
 *.db-wal
 
+.vercel
+.env*.local
