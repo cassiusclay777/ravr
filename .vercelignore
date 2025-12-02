@@ -1,0 +1,69 @@
+# Dependencies
+node_modules
+.pnpm-store
+
+# Build outputs
+dist
+dist-electron
+build
+out
+
+# Development
+.git
+.github
+.vscode
+.idea
+
+# Electron
+electron
+electron.js
+preload.js
+electron-builder.config.js
+
+# Mobile
+android
+ios
+capacitor.config.ts
+
+# Rust/WASM source
+src-rust
+src-tauri
+src/wasm/src
+
+# Tests
+**/__tests__
+**/*.test.ts
+**/*.test.tsx
+**/*.spec.ts
+**/*.spec.tsx
+jest.config.js
+vitest.config.ts
+
+# Documentation
+docs
+*.md
+!README.md
+
+# Assets that are too large
+public/models
+public/ffmpeg
+
+# Scripts
+scripts
+build-*.js
+deploy-*.js
+*.ps1
+
+# Tools
+tools
+
+# Misc
+.env.local
+.env*.local
+*.log
+npm-debug.log*
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
