@@ -222,7 +222,7 @@ export default defineConfig(({ mode }: ConfigEnv) => {
         "lucide-react",
         "clsx",
       ],
-      exclude: ["@ffmpeg/ffmpeg", "@ffmpeg/util"],
+      exclude: ["@ffmpeg/ffmpeg", "@ffmpeg/util", "flac.js", "av"],
     },
 
     // WASM configuration
