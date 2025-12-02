@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<DOCUMENT Type="Advanced Installer Solution" CreateVersion="23.0.1" version="23.0.1" Id="{2A304BDD-BF5B-4B52-9C40-75ACAD6F1F4E}">
-  <PROJECT Path="..\Users\patri\Documents\Tento_program.aip" Id="{D68B4564-2E4B-4496-BB15-B400BA3F101D}" Startup="true"/>
-  <PROJECT Path="..\Users\patri\Documents\Advanced Installer\Projects\ravr\ravr.aip" Id="{B223A996-CBD6-443E-B874-65D58BF55D99}" Startup="false"/>
-</DOCUMENT>

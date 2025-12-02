@@ -53,6 +53,11 @@ const AdvancedPlayerPage = lazy(async () => {
   return { default: module.default as unknown as React.ComponentType<any> };
 });
 
+const ProFeaturesPage = lazy(async () => {
+  const module = await import("./pages/ProFeaturesPage");
+  return { default: module.default as unknown as React.ComponentType<any> };
+});
+
 // Ensure audio element exists in the DOM
 function ensureAudioElement() {
   if (typeof document === "undefined") return;
@@ -205,6 +210,18 @@ function AppContent() {
             }
           />
           <Route path="/settings" element={<SettingsView />} />
+          <Route
+            path="/pro"
+            element={
+              <Suspense
+                fallback={
+                  <div className="text-white">Loading Pro Features...</div>
+                }
+              >
+                <ProFeaturesPage />
+              </Suspense>
+            }
+          />
         </Routes>
 
         <div className="fixed bottom-4 right-4 flex gap-3 z-40">

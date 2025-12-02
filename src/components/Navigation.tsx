@@ -166,6 +166,7 @@ export const Navigation: React.FC = () => {
           <StyledLink to="/" onClick={handleNavClick}>Player</StyledLink>
           <StyledLink to="/dsp" onClick={handleNavClick}>DSP</StyledLink>
           <StyledLink to="/tracks" onClick={handleNavClick}>Auto Tracks</StyledLink>
+          <StyledLink to="/pro" onClick={handleNavClick}>⚡ Pro Features</StyledLink>
           <StyledLink to="/settings" onClick={handleNavClick}>Settings</StyledLink>
         </NavList>
       </MobileMenu>
