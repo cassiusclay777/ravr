@@ -347,7 +347,7 @@ export class ExportImportManager {
   private async exportToFLAC(audioBuffer: AudioBuffer, options: ExportOptions): Promise<ArrayBuffer> {
     try {
       // Dynamic import of flac.js
-      const Flac = (await import('flac.js')).default;
+      const Flac = (await Promise.reject(new Error('FLAC.js not available'))).default;
 
       const numberOfChannels = audioBuffer.numberOfChannels;
       const sampleRate = audioBuffer.sampleRate;
