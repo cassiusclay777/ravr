@@ -32,6 +32,8 @@ export function useAudioEngine() {
   // WASM DSP Engine (preferred)
   const wasmDsp = useRef<WasmDspManager | null>(null);
   const wasmEnabled = useRef<boolean>(false);
+  const wasmInitPromise = useRef<Promise<void> | null>(null);
+  const sourceNodeCreated = useRef<boolean>(false);
 
   // Relativistic Audio Effects
   const relativisticProcessor = useRef<RelativisticAudioProcessor | null>(null);
@@ -90,8 +92,9 @@ export function useAudioEngine() {
         // Initialize WASM DSP Engine
         if (useWasm) {
           wasmDsp.current = new WasmDspManager(audioContext);
-          
-          wasmDsp.current.waitUntilReady().then(() => {
+
+          // FIX #2: Store WASM promise for synchronization
+          wasmInitPromise.current = wasmDsp.current.waitUntilReady().then(() => {
             wasmEnabled.current = true;
             console.log('🔥 WASM DSP Engine ready for use!');
           }).catch((error) => {
@@ -143,19 +146,27 @@ export function useAudioEngine() {
           console.error('GPU initialization error:', error);
         });
 
-        // Create the MediaElementSource only once
-        // Check if element already has a source to prevent double connection error
-        if (audioElement && !src.current) {
+        // FIX #1: Create the MediaElementSource only once - prevent double creation
+        if (audioElement && !src.current && !sourceNodeCreated.current) {
           try {
             src.current = audioContext.createMediaElementSource(audioElement);
-            // Setup audio routing based on WASM availability
-            setupAudioRouting();
+            sourceNodeCreated.current = true;
+
+            // FIX #2: Wait for WASM initialization before routing
+            if (wasmInitPromise.current) {
+              wasmInitPromise.current.finally(() => {
+                setupAudioRouting();
+              });
+            } else {
+              setupAudioRouting();
+            }
           } catch (error) {
             // If already connected, that's okay - just skip
             if ((error as Error).message.includes('already connected')) {
               console.log('📻 Audio element already has a source node, reusing...');
+              sourceNodeCreated.current = true;
             } else {
-              throw error;
+              console.error('Failed to create media element source:', error);
             }
           }
         }
@@ -164,7 +175,7 @@ export function useAudioEngine() {
       }
     }
 
-    // Set up event listeners
+    // FIX #3: Set up event listeners with stable references (no memory leak)
     const handleTimeUpdate = () => setCurrent(audioElement.currentTime);
     const handleLoadedMetadata = () => setDuration(audioElement.duration);
 
@@ -176,94 +187,123 @@ export function useAudioEngine() {
       audioElement.removeEventListener('timeupdate', handleTimeUpdate);
       audioElement.removeEventListener('loadedmetadata', handleLoadedMetadata);
     };
-  }, [useWasm]);
+  }, []); // FIX #3: Empty deps - only run once, prevent listener duplication
 
-  // Setup audio routing (WASM or Web Audio API)
+  // FIX #4: Setup audio routing with robust error handling
   const setupAudioRouting = useCallback(() => {
     if (!src.current || !ctx.current) return;
 
     const audioContext = ctx.current;
 
+    // Helper to safely disconnect a node
+    const safeDisconnect = (node: AudioNode | null) => {
+      if (!node) return;
+      try {
+        node.disconnect();
+      } catch (error) {
+        if (process.env.NODE_ENV === 'development') {
+          console.warn('Failed to disconnect node:', error);
+        }
+      }
+    };
+
     // Wait for WASM to be ready if enabled
-    if (useWasm && wasmDsp.current) {
-      wasmDsp.current.waitUntilReady().then(() => {
-        const wasmNode = wasmDsp.current!.getNode();
-        
-        if (wasmNode) {
+    if (useWasm && wasmDsp.current && wasmEnabled.current) {
+      const wasmNode = wasmDsp.current.getNode();
+
+      if (wasmNode) {
+        try {
+          // FIX #4: Safe disconnect before reconnection
+          safeDisconnect(src.current);
+
           // WASM routing: source → WASM processor → gain → destination + analyser
-          src.current!.disconnect();
-          src.current!.connect(wasmNode);
+          src.current.connect(wasmNode);
           wasmNode.connect(gain.current!);
           gain.current!.connect(audioContext.destination);
-          
+
           if (analyser.current) {
             gain.current!.connect(analyser.current);
           }
-          
+
           console.log('🚀 Audio routing: WASM DSP Engine active');
-        } else {
+        } catch (error) {
+          console.error('WASM routing failed, falling back:', error);
           useFallbackRouting();
         }
-      }).catch(() => {
+      } else {
         useFallbackRouting();
-      });
+      }
     } else {
       useFallbackRouting();
     }
 
     function useFallbackRouting() {
       // Web Audio API routing: source → EQ → compressor → gain → destination + analyser
-      if (!src.current || !low.current || !mid.current || !high.current || !comp.current || !gain.current) return;
-      
-      src.current.disconnect();
-      src.current.connect(low.current);
-      low.current.connect(mid.current);
-      mid.current.connect(high.current);
-      high.current.connect(comp.current);
-      comp.current.connect(gain.current);
-      gain.current.connect(ctx.current!.destination);
-      
-      if (analyser.current) {
-        gain.current.connect(analyser.current);
+      if (!src.current || !low.current || !mid.current || !high.current || !comp.current || !gain.current) {
+        console.warn('Missing audio nodes for fallback routing');
+        return;
       }
-      
-      console.log('📻 Audio routing: Web Audio API fallback active');
+
+      try {
+        // FIX #4: Safe disconnect before reconnection
+        safeDisconnect(src.current);
+
+        src.current.connect(low.current);
+        low.current.connect(mid.current);
+        mid.current.connect(high.current);
+        high.current.connect(comp.current);
+        comp.current.connect(gain.current);
+        gain.current.connect(ctx.current!.destination);
+
+        if (analyser.current) {
+          gain.current.connect(analyser.current);
+        }
+
+        console.log('📻 Audio routing: Web Audio API fallback active');
+      } catch (error) {
+        console.error('Failed to setup audio routing:', error);
+      }
     }
   }, [useWasm]);
 
-  // Clean up audio context on unmount
+  // FIX #5: Improved cleanup with proper error logging
   useEffect(() => {
     return () => {
+      const safeDisconnect = (node: AudioNode | null, name: string) => {
+        if (!node) return;
+        try {
+          node.disconnect();
+        } catch (e) {
+          if (process.env.NODE_ENV === 'development') {
+            console.warn(`Failed to disconnect ${name}:`, e);
+          }
+        }
+      };
+
       // Disconnect all nodes safely
-      try {
-        if (src.current) src.current.disconnect();
-      } catch (e) { /* ignore */ }
-      try {
-        if (low.current) low.current.disconnect();
-      } catch (e) { /* ignore */ }
-      try {
-        if (mid.current) mid.current.disconnect();
-      } catch (e) { /* ignore */ }
-      try {
-        if (high.current) high.current.disconnect();
-      } catch (e) { /* ignore */ }
-      try {
-        if (comp.current) comp.current.disconnect();
-      } catch (e) { /* ignore */ }
-      try {
-        if (gain.current) gain.current.disconnect();
-      } catch (e) { /* ignore */ }
-      try {
-        if (analyser.current) analyser.current.disconnect();
-      } catch (e) { /* ignore */ }
+      safeDisconnect(src.current, 'source');
+      safeDisconnect(low.current, 'low EQ');
+      safeDisconnect(mid.current, 'mid EQ');
+      safeDisconnect(high.current, 'high EQ');
+      safeDisconnect(comp.current, 'compressor');
+      safeDisconnect(gain.current, 'gain');
+      safeDisconnect(analyser.current, 'analyser');
 
       // Clean up WASM
       if (wasmDsp.current) {
         try {
           wasmDsp.current.disconnect();
-        } catch (e) { /* ignore */ }
+        } catch (e) {
+          if (process.env.NODE_ENV === 'development') {
+            console.warn('Failed to disconnect WASM DSP:', e);
+          }
+        }
         wasmDsp.current = null;
       }
+
+      // Reset state
+      sourceNodeCreated.current = false;
+      wasmInitPromise.current = null;
 
       // Note: Don't clean up audioManager or close context in StrictMode
       // as they might be shared between mounts
@@ -341,10 +381,17 @@ export function useAudioEngine() {
     }
   }, []);
 
-  // volume
+  // FIX #6: Safe volume control with range validation (0-1)
+  const setVolume = useCallback((vol: number) => {
+    const safeVolume = Math.max(0, Math.min(1, vol));
+    setVol(safeVolume);
+  }, []);
+
   useEffect(() => {
     if (audio.current) {
-      audio.current.volume = volume;
+      // Double validation to ensure volume is always 0-1
+      const safeVolume = Math.max(0, Math.min(1, volume));
+      audio.current.volume = safeVolume;
     }
   }, [volume]);
 
@@ -409,7 +456,7 @@ export function useAudioEngine() {
     loadFile,
     load,
     volume,
-    setVolume: setVol,
+    setVolume, // FIX #6: Use safe volume setter instead of raw setVol
     eq,
     setEq,
     makeup,
