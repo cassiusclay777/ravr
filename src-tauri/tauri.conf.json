@@ -41,14 +41,7 @@
     "windows": {
       "certificateThumbprint": null,
       "digestAlgorithm": "sha256",
-      "timestampUrl": "",
-      "wix": null,
-      "nsis": {
-        "license": null,
-        "installerIcon": "icons/icon.ico",
-        "headerImage": null,
-        "sidebarImage": null
-      }
+      "timestampUrl": ""
     },
     "macOS": {
       "entitlements": null,
