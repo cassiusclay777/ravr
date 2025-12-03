@@ -28,23 +28,30 @@ const NavList = styled.div`
   }
 `;
 
-const StyledLink = styled(NavLink)`
+const StyledLink = styled(NavLink)<{ $isPro?: boolean }>`
   padding: 0.4rem 0.75rem;
   border-radius: 4px;
   color: rgba(255, 255, 255, 0.8);
   text-decoration: none;
   transition: all 0.2s;
   position: relative;
-  
+  background: ${props => props.$isPro ? 'linear-gradient(to right, rgba(168, 85, 247, 0.2), rgba(6, 182, 212, 0.2))' : 'transparent'};
+  border: ${props => props.$isPro ? '1px solid rgba(168, 85, 247, 0.3)' : 'none'};
+
   &:hover {
     color: white;
-    background: rgba(255, 255, 255, 0.1);
+    background: ${props => props.$isPro
+      ? 'linear-gradient(to right, rgba(168, 85, 247, 0.3), rgba(6, 182, 212, 0.3))'
+      : 'rgba(255, 255, 255, 0.1)'};
   }
-  
+
   &.active {
     color: white;
     font-weight: 600;
-    
+    background: ${props => props.$isPro
+      ? 'linear-gradient(to right, rgba(168, 85, 247, 0.4), rgba(6, 182, 212, 0.4))'
+      : 'rgba(255, 255, 255, 0.1)'};
+
     &:after {
       content: '';
       position: absolute;
@@ -52,11 +59,11 @@ const StyledLink = styled(NavLink)`
       left: 0.5rem;
       right: 0.5rem;
       height: 2px;
-      background: linear-gradient(to right, #4f46e5, #06b6d4);
+      background: linear-gradient(to right, #a855f7, #06b6d4);
       border-radius: 1px;
     }
   }
-  
+
   @media (max-width: 640px) {
     padding: 0.5rem;
     font-size: 0.9rem;
@@ -166,7 +173,7 @@ export const Navigation: React.FC = () => {
           <StyledLink to="/" onClick={handleNavClick}>Player</StyledLink>
           <StyledLink to="/dsp" onClick={handleNavClick}>DSP</StyledLink>
           <StyledLink to="/tracks" onClick={handleNavClick}>Auto Tracks</StyledLink>
-          <StyledLink to="/pro" onClick={handleNavClick}>⚡ Pro Features</StyledLink>
+          <StyledLink to="/pro" onClick={handleNavClick} $isPro={true}>⚡ Pro Features</StyledLink>
           <StyledLink to="/settings" onClick={handleNavClick}>Settings</StyledLink>
         </NavList>
       </MobileMenu>
