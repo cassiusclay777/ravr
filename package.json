@@ -28,8 +28,8 @@
     "pack:desktop:linux": "pnpm build && electron-builder --linux",
     "test": "jest",
     "build-safe": "node build-safe.js",
-    "tauri:dev": "tauri dev",
-    "tauri:build": "tauri build"
+    "tauri:dev": "npx @tauri-apps/cli@2.9.5 dev",
+    "tauri:build": "npx @tauri-apps/cli@2.9.5 build"
   },
   "dependencies": {
     "@capacitor/android": "7.4.3",
@@ -76,7 +76,7 @@
     "zustand": "4.4.7"
   },
   "devDependencies": {
-    "@tauri-apps/cli": "2.9.2",
+    "@tauri-apps/cli": "2.9.5",
     "@testing-library/jest-dom": "6.9.1",
     "@testing-library/react": "16.3.0",
     "@types/jest": "^30.0.0",
