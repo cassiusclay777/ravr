@@ -9,15 +9,15 @@ import AdvancedDSPPanel from '../components/AdvancedDSPPanel';
 import AIFeaturesPanel from '../components/AIFeaturesPanel';
 import AudioReactive3D from '../visualizer/AudioReactive3D';
 import { PresetManager } from '../presets/PresetManager';
+import { useAudioEngine } from '../hooks/useAudioEngine';
 
 export const ProFeaturesPage: React.FC = () => {
   const [activeSection, setActiveSection] = useState<'bitperfect' | 'dsp' | 'ai' | 'viz' | 'network'>('bitperfect');
-  const [audioContext] = useState(() => new AudioContext());
-  const [analyzerNode] = useState(() => {
-    const analyzer = audioContext.createAnalyser();
-    analyzer.fftSize = 2048;
-    return analyzer;
-  });
+
+  // Use the main audio engine instead of creating a new AudioContext
+  const audioEngine = useAudioEngine();
+  const audioContext = audioEngine.ctx;
+  const analyzerNode = audioEngine.analyser;
 
   const sections = [
     { id: 'bitperfect', name: 'Bit-Perfect Audio', icon: '🎧', color: 'cyan' },
@@ -62,7 +62,12 @@ export const ProFeaturesPage: React.FC = () => {
         <div className="max-w-4xl mx-auto">
           {activeSection === 'bitperfect' && <BitPerfectSettings />}
 
-          {activeSection === 'dsp' && <AdvancedDSPPanel audioContext={audioContext} />}
+          {activeSection === 'dsp' && audioContext && <AdvancedDSPPanel audioContext={audioContext} />}
+          {activeSection === 'dsp' && !audioContext && (
+            <div className="text-white text-center p-8">
+              Inicializace audio systému...
+            </div>
+          )}
 
           {activeSection === 'ai' && <AIFeaturesPanel />}
 
@@ -80,17 +85,23 @@ export const ProFeaturesPage: React.FC = () => {
 
               {/* Visualizer Container */}
               <div className="relative w-full h-96 bg-black rounded-lg overflow-hidden">
-                <AudioReactive3D
-                  analyzer={analyzerNode}
-                  settings={{
-                    particleCount: 1000,
-                    particleSize: 2,
-                    particleColor: '#00ffff',
-                    reactivityIntensity: 0.8,
-                    showCharacter: true,
-                    characterDanceIntensity: 0.9,
-                  }}
-                />
+                {analyzerNode ? (
+                  <AudioReactive3D
+                    analyzer={analyzerNode}
+                    settings={{
+                      particleCount: 1000,
+                      particleSize: 2,
+                      particleColor: '#00ffff',
+                      reactivityIntensity: 0.8,
+                      showCharacter: true,
+                      characterDanceIntensity: 0.9,
+                    }}
+                  />
+                ) : (
+                  <div className="flex items-center justify-center h-full text-slate-400">
+                    Načítání vizualizéru... Prosím nahrajte nějaké audio.
+                  </div>
+                )}
               </div>
 
               {/* Controls */}
